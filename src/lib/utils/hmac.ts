@@ -1,13 +1,15 @@
-var crypto = require('crypto')
+// This file is taken from the Duo Node.js SDK: https://github.com/duosecurity/duo_api_nodejs/blob/master/lib/duo_sig.js
+
+import crypto from 'crypto'
 
 // Compare two strings based on character unicode values.
 //
 // If a string is a subset of another, it should sort before.
 // i.e. 'foo' < 'foo_bar'
 function compare(a: string, b: string) {
-    var aChar, bChar
+    let aChar, bChar
 
-    for (var i = 0; i < Math.min(a.length, b.length); i++) {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
         aChar = a.charCodeAt(i)
         bChar = b.charCodeAt(i)
 
@@ -31,12 +33,12 @@ function compare(a: string, b: string) {
 // a single string or an Array of strings, return the
 // application/x-www-form-urlencoded parameters string.
 function canonParams(params: any) {
-    var ks = Object.keys(params).sort(compare)
+    const ks = Object.keys(params).sort(compare)
 
     // Build application/x-www-form-urlencoded string.
-    var qs = ks
+    const qs = ks
         .map(function (k) {
-            var keq = encodeURIComponent(k) + '='
+            const keq = encodeURIComponent(k) + '='
             if (Array.isArray(params[k])) {
                 return params[k]
                     .map(function (v: any) {
@@ -52,11 +54,11 @@ function canonParams(params: any) {
     // encodeURIComponent doesn't escape all needed characters.
     // We need to use global regexps to handle the remaining cases.
 
-    var exclamationRegexp = /!/g
-    var singleQuoteRegexp = /'/g
-    var lparenRegexp = /\(/g
-    var rparenRegexp = /\)/g
-    var starRegexp = /\*/g
+    const exclamationRegexp = /!/g
+    const singleQuoteRegexp = /'/g
+    const lparenRegexp = /\(/g
+    const rparenRegexp = /\)/g
+    const starRegexp = /\*/g
     return qs
         .replace(exclamationRegexp, '%21')
         .replace(singleQuoteRegexp, '%27')
@@ -86,9 +88,9 @@ export function sign(
     params: Record<string, unknown>,
     date: string,
 ) {
-    var canon = canonicalize(method, host, path, params, date)
-    var sig = crypto.createHmac('sha512', skey).update(canon).digest('hex')
+    const canon = canonicalize(method, host, path, params, date)
+    const sig = crypto.createHmac('sha512', skey).update(canon).digest('hex')
 
-    var auth = Buffer.from([ikey, sig].join(':')).toString('base64')
+    const auth = Buffer.from([ikey, sig].join(':')).toString('base64')
     return 'Basic ' + auth
 }
