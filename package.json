@@ -11,6 +11,10 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pliancy/duo-sdk"
+  },
   "devDependencies": {
     "@digitalroute/cz-conventional-changelog-for-jira": "8.0.0",
     "@pliancy/eslint-config-ts": "0.1.0",
@@ -43,5 +47,9 @@
   "author": {
     "name": "Santese",
     "email": "santese@pliancy.com"
+  },
+  "volta": {
+    "node": "18.13.0",
+    "yarn": "1.22.19"
   }
 }
