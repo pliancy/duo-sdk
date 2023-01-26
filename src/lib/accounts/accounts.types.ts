@@ -7,3 +7,5 @@ export interface Account {
 export interface CreateAccount {
     name: string
 }
+
+export type AccountEdition = 'PERSONAL' | 'ENTERPRISE' | 'BUSINESS' | 'PLATFORM' | 'BEYOND'
