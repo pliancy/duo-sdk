@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import { Account, CreateAccount } from './accounts.types'
+import { Account, AccountEdition, CreateAccount } from './accounts.types'
 
 export class Accounts {
     constructor(private readonly httpAgent: AxiosInstance) {}
@@ -17,6 +17,26 @@ export class Accounts {
     async getByName(name: string) {
         const accounts = await this.getAll()
         return accounts.find((account) => account.name === name)
+    }
+
+    async getAccountEdition(accountId: string) {
+        const { data: res } = await this.httpAgent.get('/admin/v1/billing/edition', {
+            params: { account_id: accountId },
+        })
+        return res.response
+    }
+
+    async setAccountEdition(accountId: string, edition: AccountEdition) {
+        await this.httpAgent.post(
+            '/admin/v1/billing/edition',
+            {},
+            {
+                params: {
+                    account_id: accountId,
+                    edition,
+                },
+            },
+        )
     }
 
     async create(account: CreateAccount): Promise<Account> {
