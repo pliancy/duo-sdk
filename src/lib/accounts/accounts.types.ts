@@ -3,3 +3,7 @@ export interface Account {
     api_hostname: string
     name: string
 }
+
+export interface CreateAccount {
+    name: string
+}

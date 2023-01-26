@@ -28,12 +28,32 @@ describe('Accounts', () => {
         expect(mockAxios.post).toHaveBeenCalledWith('/accounts/v1/account/list')
     })
 
+    it('gets an account by id', async () => {
+        const data = {
+            response: [account],
+        }
+        jest.spyOn(mockAxios, 'post').mockResolvedValue({ data })
+        const res = await accounts.getById('1')
+        expect(res).toEqual(account)
+        expect(mockAxios.post).toHaveBeenCalledWith('/accounts/v1/account/list')
+    })
+
+    it('gets an account by name', async () => {
+        const data = {
+            response: [account],
+        }
+        jest.spyOn(mockAxios, 'post').mockResolvedValue({ data })
+        const res = await accounts.getByName('Account')
+        expect(res).toEqual(account)
+        expect(mockAxios.post).toHaveBeenCalledWith('/accounts/v1/account/list')
+    })
+
     it('creates an account', async () => {
         const data = {
             response: account,
         }
         jest.spyOn(mockAxios, 'post').mockResolvedValue({ data })
-        const res = await accounts.create('Account')
+        const res = await accounts.create({ name: 'Account' })
         expect(res).toEqual(account)
         expect(mockAxios.post).toHaveBeenCalledWith(
             '/accounts/v1/account/create',

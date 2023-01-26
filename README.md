@@ -13,7 +13,9 @@ const duo = new Duo({
 
 const accounts = await duo.accounts.getAll()
 
-const account = await duo.accounts.create('New Account')
+const account = await duo.accounts.create({
+    name: 'Account Name'
+})
 ```
 
 ## Test
