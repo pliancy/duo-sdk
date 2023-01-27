@@ -9,3 +9,7 @@ export interface CreateAccount {
 }
 
 export type AccountEdition = 'PERSONAL' | 'ENTERPRISE' | 'BUSINESS' | 'PLATFORM' | 'BEYOND'
+
+export interface AccountEditionResponse {
+    edition: AccountEdition
+}
