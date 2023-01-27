@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import { Account, AccountEdition, CreateAccount } from './accounts.types'
+import { Account, AccountEdition, AccountEditionResponse, CreateAccount } from './accounts.types'
 
 export class Accounts {
     constructor(private readonly httpAgent: AxiosInstance) {}
@@ -19,15 +19,18 @@ export class Accounts {
         return accounts.find((account) => account.name === name)
     }
 
-    async getAccountEdition(accountId: string) {
+    async getAccountEdition(accountId: string): Promise<AccountEditionResponse> {
         const { data: res } = await this.httpAgent.get('/admin/v1/billing/edition', {
             params: { account_id: accountId },
         })
         return res.response
     }
 
-    async setAccountEdition(accountId: string, edition: AccountEdition) {
-        await this.httpAgent.post(
+    async setAccountEdition(
+        accountId: string,
+        edition: AccountEdition,
+    ): Promise<AccountEditionResponse> {
+        const { data: res } = await this.httpAgent.post(
             '/admin/v1/billing/edition',
             {},
             {
@@ -37,6 +40,7 @@ export class Accounts {
                 },
             },
         )
+        return res.response
     }
 
     async create(account: CreateAccount): Promise<Account> {
