@@ -1,3 +1,7 @@
 export { Duo } from './lib/duo'
+export { Users } from './lib/users/users'
+export * from './lib/users/users.types'
+export { Devices } from './lib/devices/devices'
+export * from './lib/devices/devices.types'
 export * from './lib/duo.types'
 export * from './lib/accounts/accounts.types'
