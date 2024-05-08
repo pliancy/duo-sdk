@@ -42,8 +42,8 @@ export interface DuoGroup {
 }
 
 export interface DuoWebAuthNCredential {
-    credential_name: 'YubiKey 5'
-    date_added: 1550674764
-    label: 'Security Key'
-    webauthnkey: 'WA4ED9AUVMSWUF00KES4'
+    credential_name: string
+    date_added: number
+    label: string
+    webauthnkey: string
 }
