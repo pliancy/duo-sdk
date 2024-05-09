@@ -42,7 +42,8 @@ export class Devices {
         const params: any = {}
         const args: any = { phoneId, valid_secs, install, installation_msg, activation_msg }
         for (const key in args) {
-            if (args[key] !== undefined) params[key] = args[key]
+            // install param is a falsy value, so check for null or undefined values
+            if (args[key] !== undefined && args[key] !== null) params[key] = args[key]
         }
         const { data } = await this.http.post(
             `${this.baseUrl}/${phoneId}/send_sms_activation`,
