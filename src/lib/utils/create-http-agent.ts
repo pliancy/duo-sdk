@@ -6,11 +6,15 @@ export function createHttpAgent(config: DuoConfig): AxiosInstance {
     const baseURL = `https://${config.apiHost}`
     const agent = axios.create({ baseURL })
 
+    if (config.accountId) {
+        agent.defaults.params = { account_id: config.accountId }
+    }
+
     agent.interceptors.request.use((req) => {
         const method = req.method?.toUpperCase() || 'GET'
         const path = req.url?.replace(baseURL, '') || '/'
         const date = new Date().toUTCString()
-        const signature = sign(
+        req.headers['Authorization'] = sign(
             config.integrationKey,
             config.secretKey,
             method,
@@ -19,7 +23,6 @@ export function createHttpAgent(config: DuoConfig): AxiosInstance {
             req.params || {},
             date,
         )
-        req.headers['Authorization'] = signature
         req.headers['Date'] = date
         return req
     })
