@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import { DuoUser } from './users.types'
+import { DuoUser, PushResponse } from './users.types'
 
 export class Users {
     private baseUrl = '/admin/v1/users'
@@ -49,6 +49,46 @@ export class Users {
                 `Unable to update user with username ${username}: ${data.message}: ${data.message_detail}`,
             )
         return data.response
+    }
+
+    async sendVerificationPush(userId: string, phoneId: string) {
+        try {
+            const { data } = await this.httpAgent.post(
+                `${this.baseUrl}/${userId}/send_verification_push`,
+                null,
+                {
+                    params: { phone_id: phoneId },
+                },
+            )
+            return { pushId: data.response.push_id }
+        } catch (e: any) {
+            if (e.status === 400) {
+                return {
+                    success: false,
+                    message:
+                        'Either a required parameter is missing or the device has not been activated',
+                }
+            }
+            return { success: false, error: e.data }
+        }
+    }
+
+    async getPushResponse(userId: string, pushId: string): Promise<PushResponse> {
+        try {
+            const { data } = await this.httpAgent.get(
+                `${this.baseUrl}/${userId}/verification_push_response`,
+                {
+                    params: { push_id: pushId },
+                },
+            )
+            return { result: data.response.result }
+        } catch (e: any) {
+            if (e.status === 404) {
+                return { result: 'timeout' }
+            }
+
+            return { result: 'failed', message: e.message }
+        }
     }
 
     async associateDevice(user_id: string, phone_id: string): Promise<'OK'> {

@@ -127,6 +127,32 @@ describe('Users', () => {
         })
     })
 
+    describe('sendVerificationPush', () => {
+        assertFailure('sendVerificationPush', 'post', 'user', 'key')
+
+        it('sends a verification push', async () => {
+            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+                data: { stat: 'OK', response: { push_id: '1' } },
+            })
+            await expect(users.sendVerificationPush('user', 'key')).resolves.toEqual({
+                pushId: '1',
+            })
+        })
+    })
+
+    describe('getPushResponse', () => {
+        assertFailure('getPushResponse', 'post', 'user', 'key')
+
+        it('retrieves a push response by id', async () => {
+            jest.spyOn(mockAxios, 'get').mockResolvedValue({
+                data: { stat: 'OK', response: { result: 'approve' } },
+            })
+            await expect(users.getPushResponse('user', '1')).resolves.toEqual({
+                result: 'approve',
+            })
+        })
+    })
+
     function assertFailure(classMethod: keyof Users, requestMethod: any, ...args: any[]) {
         it('fails given stat === "FAIL"', async () => {
             const errorResponse = { stat: 'FAIL', message: 'fail', message_detail: 'it failed' }
@@ -134,12 +160,14 @@ describe('Users', () => {
             jest.spyOn(mockAxios, requestMethod).mockRejectedValue({
                 data: errorResponse,
             } as never)
+            jest.spyOn(users, classMethod)
             try {
                 // @ts-ignore
                 await users[classMethod](args)
                 expect(true).toBe(true)
             } catch (e) {
                 expect(e).toEqual({ data: errorResponse })
+                expect(users[classMethod]).toHaveBeenCalledWith(args)
             }
         })
     }

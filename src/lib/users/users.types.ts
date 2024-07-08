@@ -47,3 +47,6 @@ export interface DuoWebAuthNCredential {
     label: string
     webauthnkey: string
 }
+
+export type PushResponse = { result: PushResult; message?: string }
+export type PushResult = 'approve' | 'deny' | 'fraud' | 'waiting' | 'timeout' | 'failed'
