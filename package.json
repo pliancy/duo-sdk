@@ -54,7 +54,7 @@
     "email": "santese@pliancy.com"
   },
   "volta": {
-    "node": "20.11.1",
+    "node": "22.14.0",
     "yarn": "1.22.21"
   },
   "config": {
