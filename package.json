@@ -1,6 +1,6 @@
 {
   "name": "@pliancy/duo-sdk",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "main": "dist/index.js",
   "license": "MIT",
   "description": "Duo SDK for Node.js",

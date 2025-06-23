@@ -111,7 +111,7 @@ describe('Users', () => {
             expect(mockAxios.post).toHaveBeenCalledWith(
                 '/admin/v1/users/1/bypass_codes',
                 {},
-                { params: { count, reuse_count, valid_secs } },
+                { params: { count, reuse_count, valid_secs, preserve_existing: false } },
             )
         })
     })
