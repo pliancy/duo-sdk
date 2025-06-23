@@ -104,14 +104,14 @@ export class Users {
     async createBypassCodes(
         username: string,
         count: number,
-        valid_for: number,
+        valid_secs: number,
         reuse_count: number,
     ): Promise<string[]> {
         const user = await this.getByUsername(username)
         const { data } = await this.httpAgent.post(
             `${this.baseUrl}/${user.user_id}/bypass_codes`,
             {},
-            { params: { count, valid_for, reuse_count } },
+            { params: { count, valid_secs, reuse_count } },
         )
 
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)

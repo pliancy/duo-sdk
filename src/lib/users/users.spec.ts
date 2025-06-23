@@ -92,7 +92,7 @@ describe('Users', () => {
         it('associates the user with the device', async () => {
             const response = ['code', 'code']
             const count = 1
-            const valid_for = 1
+            const valid_secs = 1
             const reuse_count = 1
             const username = 'user'
 
@@ -104,14 +104,14 @@ describe('Users', () => {
             })
 
             await expect(
-                users.createBypassCodes(username, count, valid_for, reuse_count),
+                users.createBypassCodes(username, count, valid_secs, reuse_count),
             ).resolves.toEqual(response)
 
             expect(mockAxios.get).toHaveBeenCalledWith('/admin/v1/users', { params: { username } })
             expect(mockAxios.post).toHaveBeenCalledWith(
                 '/admin/v1/users/1/bypass_codes',
                 {},
-                { params: { count, reuse_count, valid_for } },
+                { params: { count, reuse_count, valid_secs } },
             )
         })
     })
