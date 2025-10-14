@@ -153,6 +153,64 @@ describe('Users', () => {
         })
     })
 
+    describe('addUserToGroup', () => {
+        assertFailure('addUserToGroup', 'get', 'user', 'Engineering')
+
+        it('adds the user to the specified group by name', async () => {
+            // getByUsername -> GET /admin/v1/users
+            jest.spyOn(mockAxios, 'get').mockResolvedValueOnce({
+                data: { stat: 'OK', response: [{ user_id: '1' }] },
+            })
+            // Groups.getByName -> GET /admin/v1/groups
+            ;(mockAxios.get as any).mockResolvedValueOnce({
+                data: { stat: 'OK', response: [{ group_id: '2', name: 'Engineering' }] },
+            })
+            // POST /admin/v1/users/1/groups with group_id param
+            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+                data: { stat: 'OK' },
+            })
+
+            await expect(users.addUserToGroup('user', 'Engineering')).resolves.toEqual('OK')
+
+            expect(mockAxios.get).toHaveBeenNthCalledWith(1, '/admin/v1/users', {
+                params: { username: 'user' },
+            })
+            expect(mockAxios.get).toHaveBeenNthCalledWith(2, '/admin/v1/groups')
+            expect(mockAxios.post).toHaveBeenCalledWith(
+                '/admin/v1/users/1/groups',
+                {},
+                { params: { group_id: '2' } },
+            )
+        })
+    })
+
+    describe('removeUserFromGroup', () => {
+        assertFailure('removeUserFromGroup', 'get', 'user', 'Engineering')
+
+        it('removes the user from the specified group by name', async () => {
+            // getByUsername -> GET /admin/v1/users
+            jest.spyOn(mockAxios, 'get').mockResolvedValueOnce({
+                data: { stat: 'OK', response: [{ user_id: '1' }] },
+            })
+            // Groups.getByName -> GET /admin/v1/groups
+            ;(mockAxios.get as any).mockResolvedValueOnce({
+                data: { stat: 'OK', response: [{ group_id: '2', name: 'Engineering' }] },
+            })
+            // DELETE /admin/v1/users/1/groups/2
+            jest.spyOn(mockAxios, 'delete').mockResolvedValue({
+                data: { stat: 'OK' },
+            })
+
+            await expect(users.removeUserFromGroup('user', 'Engineering')).resolves.toEqual('OK')
+
+            expect(mockAxios.get).toHaveBeenNthCalledWith(1, '/admin/v1/users', {
+                params: { username: 'user' },
+            })
+            expect(mockAxios.get).toHaveBeenNthCalledWith(2, '/admin/v1/groups')
+            expect(mockAxios.delete).toHaveBeenCalledWith('/admin/v1/users/1/groups/2')
+        })
+    })
+
     function assertFailure(classMethod: keyof Users, requestMethod: any, ...args: any[]) {
         it('fails given stat === "FAIL"', async () => {
             const errorResponse = { stat: 'FAIL', message: 'fail', message_detail: 'it failed' }

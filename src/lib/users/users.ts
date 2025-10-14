@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios'
 import { DuoUser, PushResponse } from './users.types'
+import { Groups } from '../groups/groups'
 
 export class Users {
     private baseUrl = '/admin/v1/users'
@@ -129,5 +130,42 @@ export class Users {
 
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
         return data.response.user
+    }
+
+    async addUserToGroup(username: string, group_name: string): Promise<'OK'> {
+        const user = (await this.getByUsername(username)) as any
+        if (!user) throw new Error(`No user with username ${username} found`)
+
+        const groups = new Groups(this.httpAgent)
+        const group = await groups.getByName(group_name)
+        if (!group) throw new Error(`No group with name ${group_name} found`)
+        try {
+            const { data } = await this.httpAgent.post(
+                `${this.baseUrl}/${user.user_id}/groups`,
+                {},
+                { params: { group_id: group.group_id } },
+            )
+
+            return data.stat
+        } catch (e: any) {
+            const data = e?.response?.data
+            const msg =
+                data?.stat === 'FAIL' ? `${data.message}: ${data.message_detail}` : e.message
+            throw new Error(msg)
+        }
+    }
+
+    async removeUserFromGroup(username: string, group_name: string): Promise<'OK'> {
+        const user = (await this.getByUsername(username)) as any
+        if (!user) throw new Error(`No user with username ${username} found`)
+
+        const groups = new Groups(this.httpAgent)
+        const group = await groups.getByName(group_name)
+        if (!group) throw new Error(`No group with name ${group_name} found`)
+        const { data } = await this.httpAgent.delete(
+            `${this.baseUrl}/${user.user_id}/groups/${group.group_id}`,
+        )
+        if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
+        return data.stat
     }
 }
