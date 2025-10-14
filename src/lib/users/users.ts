@@ -148,7 +148,10 @@ export class Users {
 
             return data.stat
         } catch (e: any) {
-            throw new Error(`${e.response.data.message}: ${e.response.data.message_detail}`)
+            const data = e?.response?.data
+            const msg =
+                data?.stat === 'FAIL' ? `${data.message}: ${data.message_detail}` : e.message
+            throw new Error(msg)
         }
     }
 
