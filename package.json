@@ -54,8 +54,8 @@
     "email": "santese@pliancy.com"
   },
   "volta": {
-    "node": "20.19.5",
-    "yarn": "1.22.22"
+    "node": "22.20.0",
+    "yarn": "1.22.21"
   },
   "config": {
     "commitizen": {
