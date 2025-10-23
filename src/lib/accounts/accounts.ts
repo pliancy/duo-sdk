@@ -56,6 +56,15 @@ export class Accounts {
         return res.response
     }
 
+    async updateName(name: string): Promise<Account> {
+        const { data: res } = await this.httpAgent.post(
+            `/admin/v1/settings`,
+            {},
+            { params: { name } },
+        )
+        return res.response
+    }
+
     async delete(accountId: string): Promise<void> {
         await this.httpAgent.post(
             '/accounts/v1/account/delete',

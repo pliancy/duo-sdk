@@ -62,6 +62,20 @@ describe('Accounts', () => {
         )
     })
 
+    it('updates an account name', async () => {
+        const data = {
+            response: account,
+        }
+        jest.spyOn(mockAxios, 'post').mockResolvedValue({ data })
+        const res = await accounts.updateName('New Account')
+        expect(res).toEqual(account)
+        expect(mockAxios.post).toHaveBeenCalledWith(
+            `/admin/v1/settings`,
+            {},
+            { params: { name: 'New Account' } },
+        )
+    })
+
     it('deletes an account', async () => {
         jest.spyOn(mockAxios, 'post').mockResolvedValue({ data: {} })
         await accounts.delete('1')

@@ -56,6 +56,32 @@ describe('Groups', () => {
         })
     })
 
+    describe('updateByName', () => {
+        it('fails given no group is found', async () => {
+            jest.spyOn(groups, 'getByName').mockResolvedValue(null)
+            await expect(groups.updateByName('Old Name', { name: 'New Group' })).rejects.toThrow(
+                'No group with name "Old Name" found',
+            )
+        })
+
+        it('updates a group', async () => {
+            const group = { group_id: '10', name: 'Old Name' } as DuoGroup
+            const updated = { group_id: '10', name: 'New Group' } as DuoGroup
+            jest.spyOn(groups, 'getByName').mockResolvedValue(group)
+            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+                data: { stat: 'OK', response: updated },
+            })
+            await expect(groups.updateByName('Old Name', { name: 'New Group' })).resolves.toEqual(
+                updated,
+            )
+            expect(mockAxios.post).toHaveBeenCalledWith(
+                '/admin/v1/groups/10',
+                {},
+                { params: { name: 'New Group' } },
+            )
+        })
+    })
+
     function assertFailure(classMethod: keyof Groups, requestMethod: any, ...args: any[]) {
         it('fails given stat === "FAIL"', async () => {
             const errorResponse = { stat: 'FAIL', message: 'fail', message_detail: 'it failed' }
