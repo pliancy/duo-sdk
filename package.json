@@ -21,7 +21,7 @@
     "@pliancy/eslint-config-ts": "1.1.1",
     "@pliancy/semantic-release-config-npm": "2.2.0",
     "@types/jest": "30.0.0",
-    "@types/node": "20.19.21",
+    "@types/node": "20.19.24",
     "commitizen": "4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "husky": "9.1.7",
@@ -29,7 +29,7 @@
     "jest-mock-axios": "4.9.0",
     "npm-run-all2": "8.0.4",
     "pinst": "3.0.0",
-    "rimraf": "6.0.1",
+    "rimraf": "6.1.0",
     "ts-jest": "29.4.5",
     "typescript": "5.9.3"
   },
@@ -54,8 +54,8 @@
     "email": "santese@pliancy.com"
   },
   "volta": {
-    "node": "22.20.0",
-    "yarn": "1.22.21"
+    "node": "22.21.1",
+    "yarn": "1.22.22"
   },
   "config": {
     "commitizen": {
