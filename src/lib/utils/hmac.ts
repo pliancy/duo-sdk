@@ -78,6 +78,29 @@ function canonicalize(
     return [date, method.toUpperCase(), host.toLowerCase(), path, canonParams(params)].join('\n')
 }
 
+function hashString(value: string) {
+    return crypto.createHash('sha512').update(value).digest('hex')
+}
+
+function canonicalizeV5(
+    method: string,
+    host: string,
+    path: string,
+    params: Record<string, unknown>,
+    date: string,
+    body: string,
+) {
+    return [
+        date,
+        method.toUpperCase(),
+        host.toLowerCase(),
+        path,
+        canonParams(params),
+        hashString(body),
+        hashString(''),
+    ].join('\n')
+}
+
 // Return the Authorization header for an HMAC signed request.
 export function sign(
     ikey: string,
@@ -89,6 +112,24 @@ export function sign(
     date: string,
 ) {
     const canon = canonicalize(method, host, path, params, date)
+    const sig = crypto.createHmac('sha512', skey).update(canon).digest('hex')
+
+    const auth = Buffer.from([ikey, sig].join(':')).toString('base64')
+    return 'Basic ' + auth
+}
+
+// Return the Authorization header for a v5 HMAC signed request.
+export function signV5(
+    ikey: string,
+    skey: string,
+    method: string,
+    host: string,
+    path: string,
+    params: Record<string, unknown>,
+    date: string,
+    body: string,
+) {
+    const canon = canonicalizeV5(method, host, path, params, date, body)
     const sig = crypto.createHmac('sha512', skey).update(canon).digest('hex')
 
     const auth = Buffer.from([ikey, sig].join(':')).toString('base64')
