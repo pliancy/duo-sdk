@@ -145,7 +145,7 @@ export interface DuoIntegration extends DuoIntegrationPermissionFlags {
     policy_key?: string
     prompt_v4_enabled?: DuoIntegrationFlag
     secret_key?: string
-    self_service_allowed?: boolean
+    self_service_allowed?: DuoIntegrationFlag
     sso?: DuoIntegrationSsoConfig
     trusted_device_days?: number
     type: DuoIntegrationType
