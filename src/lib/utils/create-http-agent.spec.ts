@@ -90,6 +90,29 @@ describe('HttpAgent', () => {
         expect(request.headers.Date).toEqual(expect.any(String))
     })
 
+    it('uses the v5 signer for legacy integrations secret requests', () => {
+        const interceptor = getRequestInterceptor()
+        const request = interceptor({
+            method: 'get',
+            url: '/admin/v1/integrations/DI123/skey',
+            headers: {},
+        })
+
+        expect(signV5Spy).toHaveBeenCalledWith(
+            conf.integrationKey,
+            conf.secretKey,
+            'GET',
+            conf.apiHost,
+            '/admin/v1/integrations/DI123/skey',
+            {},
+            expect.any(String),
+            '',
+        )
+        expect(signSpy).not.toHaveBeenCalled()
+        expect(request.headers.Authorization).toBe('Basic v5-signature')
+        expect(request.headers.Date).toEqual(expect.any(String))
+    })
+
     it('uses the v5 signer with the serialized JSON body for integrations writes', () => {
         const interceptor = getRequestInterceptor()
         const payload = { name: 'Admin API', type: 'adminapi' }

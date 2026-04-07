@@ -192,3 +192,7 @@ export interface UpdateDuoIntegrationPayload extends DuoIntegrationUpsertPayload
 export interface DuoIntegrationClientSecret {
     client_secret: string
 }
+
+export interface DuoIntegrationSecretKeyV1 {
+    secret_key: string
+}
