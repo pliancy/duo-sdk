@@ -3,7 +3,11 @@ import { DuoConfig } from '../duo.types'
 import { sign, signV5 } from './hmac'
 
 function isV5SignaturePath(path: string) {
-    return path.startsWith('/admin/v3/integrations') || path.startsWith('/admin/v2/integrations')
+    return (
+        path.startsWith('/admin/v3/integrations') ||
+        path.startsWith('/admin/v2/integrations') ||
+        path.startsWith('/admin/v1/integrations')
+    )
 }
 
 function stripUndefinedValues(value: Record<string, unknown>) {

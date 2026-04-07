@@ -4,6 +4,7 @@ import {
     CreateDuoIntegrationPayload,
     DuoIntegration,
     DuoIntegrationClientSecret,
+    DuoIntegrationSecretKeyV1,
     DuoIntegrationsListParams,
     UpdateDuoIntegrationPayload,
 } from './integrations.types'
@@ -46,7 +47,7 @@ export class Integrations {
      * @param integrationKey
      * @returns
      */
-    async getSecret(integrationKey: string): Promise<DuoIntegrationClientSecret> {
+    async getSecret(integrationKey: string): Promise<DuoIntegrationSecretKeyV1> {
         const { data } = await this.httpAgent.get(`/admin/v1/integrations/${integrationKey}/skey`)
         return this.unwrapResponse(data)
     }
