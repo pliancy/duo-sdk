@@ -6,7 +6,7 @@
   "description": "Duo SDK for Node.js",
   "private": false,
   "dependencies": {
-    "axios": "1.12.2",
+    "axios": "1.15.0",
     "tslib": "2.8.1"
   },
   "files": [
