@@ -1,11 +1,7 @@
 import { AxiosInstance } from 'axios'
 import mockAxios from 'jest-mock-axios'
 import { Policies } from './policies'
-import {
-    CreateDuoPolicyPayload,
-    DuoPolicy,
-    UpdateDuoPolicyPayload,
-} from './policies.types'
+import { CreateDuoPolicyPayload, DuoPolicy, UpdateDuoPolicyPayload } from './policies.types'
 
 describe('Policies', () => {
     let policies: Policies
@@ -82,7 +78,10 @@ describe('Policies', () => {
         })
 
         await expect(policies.update(policy.policy_key, updatePayload)).resolves.toEqual(policy)
-        expect(mockAxios.put).toHaveBeenCalledWith(`/admin/v2/policies/${policy.policy_key}`, updatePayload)
+        expect(mockAxios.put).toHaveBeenCalledWith(
+            `/admin/v2/policies/${policy.policy_key}`,
+            updatePayload,
+        )
     })
 
     it('deletes a policy', async () => {
