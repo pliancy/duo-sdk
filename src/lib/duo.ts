@@ -6,6 +6,7 @@ import { Users } from './users/users'
 import { Devices } from './devices/devices'
 import { Groups } from './groups/groups'
 import { Integrations } from './integrations/integrations'
+import { Policies } from './policies/policies'
 
 export class Duo {
     private readonly httpAgent: AxiosInstance
@@ -20,6 +21,8 @@ export class Duo {
 
     integrations: Integrations
 
+    policies: Policies
+
     constructor(config: DuoConfig) {
         this.httpAgent = createHttpAgent(config)
         this.accounts = new Accounts(this.httpAgent)
@@ -27,5 +30,6 @@ export class Duo {
         this.users = new Users(this.httpAgent)
         this.groups = new Groups(this.httpAgent)
         this.integrations = new Integrations(this.httpAgent)
+        this.policies = new Policies(this.httpAgent)
     }
 }

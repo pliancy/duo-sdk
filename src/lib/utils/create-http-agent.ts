@@ -2,12 +2,15 @@ import axios, { AxiosInstance } from 'axios'
 import { DuoConfig } from '../duo.types'
 import { sign, signV5 } from './hmac'
 
+const V5_SIGNATURE_PATHS = [
+    '/admin/v3/integrations',
+    '/admin/v2/integrations',
+    '/admin/v1/integrations',
+    '/admin/v2/policies',
+]
+
 function isV5SignaturePath(path: string) {
-    return (
-        path.startsWith('/admin/v3/integrations') ||
-        path.startsWith('/admin/v2/integrations') ||
-        path.startsWith('/admin/v1/integrations')
-    )
+    return V5_SIGNATURE_PATHS.some((prefix) => path.startsWith(prefix))
 }
 
 function stripUndefinedValues(value: Record<string, unknown>) {
