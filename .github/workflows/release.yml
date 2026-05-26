@@ -5,6 +5,10 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  id-token: write # required for OIDC token
+  contents: read
+
 jobs:
   release:
     name: Release
