@@ -6,8 +6,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write # required for OIDC token
-  contents: read
+  id-token: write # required for OIDC
+  # required for semantic-release
+  contents: write
+  pull-requests: write
+  issues: write
 
 jobs:
   release:
