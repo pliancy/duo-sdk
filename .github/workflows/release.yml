@@ -15,25 +15,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.PLIBOT_PAT }}
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
       - name: Install dependencies
-        run: yarn
+        run: yarn --ignore-scripts
       - name: Build
         run: yarn build
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # Run semantic release and copy updated package.json back to the root of the repo.
-        run: |
-          yarn semantic-release
-          npx pinst --enable
+        run: yarn semantic-release
       # Commit changes to package.json and README.md
       - name: Auto Commit
         uses: stefanzweifel/git-auto-commit-action@v7
