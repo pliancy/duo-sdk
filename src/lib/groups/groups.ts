@@ -10,7 +10,9 @@ export class Groups {
         const { data } = await this.http.get(this.baseUrl)
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
         const groups: DuoGroup[] = data.response
-        return groups.find((g) => g.name === name) ?? null
+        // Duo's API combines the group name and description into the name field,
+        // so we check inclusion rather than exact equality to match what's shown in the UI.
+        return groups.find((g) => g.name.includes(name)) ?? null
     }
 
     async create(group: Partial<DuoGroup>): Promise<DuoGroup> {

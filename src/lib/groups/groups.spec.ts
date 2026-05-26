@@ -8,7 +8,7 @@ describe('Groups', () => {
 
     const duoGroups = [
         { group_id: '1', name: 'Admins' },
-        { group_id: '2', name: 'Engineering' },
+        { group_id: '2', name: 'Engineering - Software engineers' },
         { group_id: '3', name: 'Support' },
     ] as never as DuoGroup[]
 
@@ -30,7 +30,15 @@ describe('Groups', () => {
             expect(mockAxios.get).toHaveBeenCalledWith('/admin/v1/groups')
         })
 
-        it('returns a group by name', async () => {
+        it('returns a group by name (exact match)', async () => {
+            jest.spyOn(mockAxios, 'get').mockResolvedValue({
+                data: { stat: 'OK', response: duoGroups },
+            })
+            await expect(groups.getByName('Admins')).resolves.toEqual(duoGroups[0])
+            expect(mockAxios.get).toHaveBeenCalledWith('/admin/v1/groups')
+        })
+
+        it('returns a group when the API has combined name and description into the name field', async () => {
             jest.spyOn(mockAxios, 'get').mockResolvedValue({
                 data: { stat: 'OK', response: duoGroups },
             })

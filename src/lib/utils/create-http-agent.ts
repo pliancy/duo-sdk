@@ -34,8 +34,8 @@ export function createHttpAgent(config: DuoConfig): AxiosInstance {
             typeof req.data === 'string'
                 ? req.data
                 : typeof req.data === 'object' && req.data !== null
-                ? JSON.stringify(req.data)
-                : ''
+                  ? JSON.stringify(req.data)
+                  : ''
 
         req.headers['Authorization'] = isV5SignaturePath(path)
             ? signV5(
