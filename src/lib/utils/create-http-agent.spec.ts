@@ -1,12 +1,16 @@
-import mockAxios from 'jest-mock-axios'
-import { AxiosInstance } from 'axios'
+jest.mock('axios')
+
+import axios, { AxiosInstance } from 'axios'
 import * as hmac from './hmac'
 import { createHttpAgent } from './create-http-agent'
 
 describe('HttpAgent', () => {
     let instance: AxiosInstance
-    let signSpy: jest.SpyInstance
     let signV5Spy: jest.SpyInstance
+    let mockInstance: {
+        interceptors: { request: { use: jest.Mock; clear: jest.Mock } }
+        defaults: Record<string, unknown>
+    }
 
     const conf = { apiHost: 'foo.bar', integrationKey: 'integrationKey', secretKey: 'secretKey' }
     type MockRequest = {
@@ -18,22 +22,29 @@ describe('HttpAgent', () => {
     }
 
     const getRequestInterceptor = () => {
-        const interceptor = mockAxios.interceptors.request.use.mock.calls[0]?.[0]
+        const interceptor = mockInstance.interceptors.request.use.mock.calls[0]?.[0]
         expect(interceptor).toBeDefined()
         return interceptor as (request: MockRequest) => MockRequest
     }
 
     beforeEach(() => {
-        mockAxios.reset()
-        mockAxios.interceptors.request.clear()
-        jest.spyOn(mockAxios, 'create')
-        signSpy = jest.spyOn(hmac, 'sign').mockReturnValue('Basic v2-signature')
+        jest.clearAllMocks()
+        mockInstance = {
+            interceptors: {
+                request: {
+                    use: jest.fn(),
+                    clear: jest.fn(),
+                },
+            },
+            defaults: {},
+        }
+        jest.mocked(axios.create).mockReturnValue(mockInstance as unknown as AxiosInstance)
         signV5Spy = jest.spyOn(hmac, 'signV5').mockReturnValue('Basic v5-signature')
         instance = createHttpAgent(conf)
     })
 
     afterEach(() => {
-        expect(mockAxios.create).toHaveBeenCalledWith({
+        expect(jest.mocked(axios.create)).toHaveBeenCalledWith({
             baseURL: `https://${conf.apiHost}`,
         })
         jest.restoreAllMocks()
@@ -43,7 +54,7 @@ describe('HttpAgent', () => {
         expect(instance).toBeTruthy()
     })
 
-    it('uses the standard signer for non-integrations endpoints', () => {
+    it('uses v5 signing for all endpoints', () => {
         const interceptor = getRequestInterceptor()
         const request = interceptor({
             method: 'get',
@@ -52,7 +63,7 @@ describe('HttpAgent', () => {
             headers: {},
         })
 
-        expect(signSpy).toHaveBeenCalledWith(
+        expect(signV5Spy).toHaveBeenCalledWith(
             conf.integrationKey,
             conf.secretKey,
             'GET',
@@ -60,13 +71,13 @@ describe('HttpAgent', () => {
             '/admin/v1/users',
             { username: 'alice' },
             expect.any(String),
+            '',
         )
-        expect(signV5Spy).not.toHaveBeenCalled()
-        expect(request.headers.Authorization).toBe('Basic v2-signature')
+        expect(request.headers.Authorization).toBe('Basic v5-signature')
         expect(request.headers.Date).toEqual(expect.any(String))
     })
 
-    it('uses the v5 signer for integrations list requests', () => {
+    it('uses v5 signing for integrations list requests', () => {
         const interceptor = getRequestInterceptor()
         const request = interceptor({
             method: 'get',
@@ -85,12 +96,11 @@ describe('HttpAgent', () => {
             expect.any(String),
             '',
         )
-        expect(signSpy).not.toHaveBeenCalled()
         expect(request.headers.Authorization).toBe('Basic v5-signature')
         expect(request.headers.Date).toEqual(expect.any(String))
     })
 
-    it('uses the v5 signer for legacy integrations secret requests', () => {
+    it('uses v5 signing for legacy integrations secret requests', () => {
         const interceptor = getRequestInterceptor()
         const request = interceptor({
             method: 'get',
@@ -108,12 +118,11 @@ describe('HttpAgent', () => {
             expect.any(String),
             '',
         )
-        expect(signSpy).not.toHaveBeenCalled()
         expect(request.headers.Authorization).toBe('Basic v5-signature')
         expect(request.headers.Date).toEqual(expect.any(String))
     })
 
-    it('uses the v5 signer with the serialized JSON body for integrations writes', () => {
+    it('uses v5 signing with the serialized JSON body for POST requests', () => {
         const interceptor = getRequestInterceptor()
         const payload = { name: 'Admin API', type: 'adminapi' }
         const request = interceptor({
@@ -133,6 +142,29 @@ describe('HttpAgent', () => {
             { account_id: 'DA123' },
             expect.any(String),
             JSON.stringify(payload),
+        )
+        expect(request.headers.Authorization).toBe('Basic v5-signature')
+    })
+
+    it('uses v5 signing for bypass code generation', () => {
+        const interceptor = getRequestInterceptor()
+        const request = interceptor({
+            method: 'post',
+            url: '/admin/v1/users/DUABC123/bypass_codes',
+            params: { count: 1, valid_secs: 3600, reuse_count: 1, preserve_existing: false },
+            data: {},
+            headers: {},
+        })
+
+        expect(signV5Spy).toHaveBeenCalledWith(
+            conf.integrationKey,
+            conf.secretKey,
+            'POST',
+            conf.apiHost,
+            '/admin/v1/users/DUABC123/bypass_codes',
+            { count: 1, valid_secs: 3600, reuse_count: 1, preserve_existing: false },
+            expect.any(String),
+            '{}',
         )
         expect(request.headers.Authorization).toBe('Basic v5-signature')
     })
