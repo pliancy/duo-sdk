@@ -1,7 +1,13 @@
-import mockAxios from 'jest-mock-axios'
 import { AxiosInstance } from 'axios'
 import { Devices } from './devices'
 import { DuoPhone } from './devices.types'
+
+const mockHttp = {
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+}
 
 describe('Devices', () => {
     let devices: Devices
@@ -15,8 +21,8 @@ describe('Devices', () => {
     const phoneId = duoDevices[0]!.phone_id
 
     beforeEach(() => {
-        mockAxios.reset()
-        devices = new Devices(mockAxios as never as AxiosInstance)
+        jest.clearAllMocks()
+        devices = new Devices(mockHttp as unknown as AxiosInstance)
     })
 
     it('creates the instance', () => expect(devices).toBeTruthy())
@@ -25,14 +31,14 @@ describe('Devices', () => {
         assertFailure('getByNumber', 'get', '123')
 
         it('returns null given no device found', async () => {
-            jest.spyOn(mockAxios, 'get').mockResolvedValue({
+            jest.spyOn(mockHttp, 'get').mockResolvedValue({
                 data: { stat: 'OK', response: [] },
             })
             await expect(devices.getByNumber('1231231233')).resolves.toBeNull()
         })
 
         it('gets a device by phone number', async () => {
-            jest.spyOn(mockAxios, 'get').mockResolvedValue({
+            jest.spyOn(mockHttp, 'get').mockResolvedValue({
                 data: { stat: 'OK', response: [duoDevices[0]] },
             })
             await expect(devices.getByNumber('1231231233')).resolves.toEqual(duoDevices[0])
@@ -43,7 +49,7 @@ describe('Devices', () => {
         assertFailure('create', 'post', { number: '123' })
 
         it('creates a device', async () => {
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data: { response: duoDevices[0] },
             })
             await expect(devices.create({} as never)).resolves.toEqual(duoDevices[0])
@@ -60,7 +66,7 @@ describe('Devices', () => {
             const install = 1
             const valid_secs = 1
 
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data,
             })
 
@@ -74,7 +80,7 @@ describe('Devices', () => {
                 ),
             ).resolves.toEqual(data.response)
 
-            expect(mockAxios.post).toHaveBeenCalledWith(
+            expect(mockHttp.post).toHaveBeenCalledWith(
                 '/admin/v1/phones/1/send_sms_activation',
                 {},
                 {
@@ -103,7 +109,7 @@ describe('Devices', () => {
                     installation_url: 'url',
                 },
             }
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data,
             })
             await expect(devices.activate(phoneId)).resolves.toEqual({
@@ -119,7 +125,7 @@ describe('Devices', () => {
         it('fails given stat === "FAIL"', async () => {
             const errorResponse = { stat: 'FAIL', message: 'fail', message_detail: 'it failed' }
 
-            jest.spyOn(mockAxios, requestMethod).mockRejectedValue({
+            jest.spyOn(mockHttp, requestMethod).mockRejectedValue({
                 data: errorResponse,
             } as never)
             try {

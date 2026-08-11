@@ -1,5 +1,4 @@
 import { AxiosInstance } from 'axios'
-import mockAxios from 'jest-mock-axios'
 import { Integrations } from './integrations'
 import {
     CreateDuoIntegrationPayload,
@@ -7,6 +6,13 @@ import {
     DuoIntegrationClientSecret,
     UpdateDuoIntegrationPayload,
 } from './integrations.types'
+
+const mockHttp = {
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+}
 
 describe('Integrations', () => {
     let integrations: Integrations
@@ -52,96 +58,96 @@ describe('Integrations', () => {
     }
 
     beforeEach(() => {
-        mockAxios.reset()
-        integrations = new Integrations(mockAxios as never as AxiosInstance)
+        jest.clearAllMocks()
+        integrations = new Integrations(mockHttp as unknown as AxiosInstance)
     })
 
     it('creates the instance', () => expect(integrations).toBeTruthy())
 
     it('gets integrations with paging params', async () => {
-        jest.spyOn(mockAxios, 'get').mockResolvedValue({
+        jest.spyOn(mockHttp, 'get').mockResolvedValue({
             data: { stat: 'OK', response: [integration] },
         })
 
         await expect(integrations.getAll({ limit: 10, offset: 20 })).resolves.toEqual([integration])
-        expect(mockAxios.get).toHaveBeenCalledWith('/admin/v3/integrations', {
+        expect(mockHttp.get).toHaveBeenCalledWith('/admin/v3/integrations', {
             params: { limit: 10, offset: 20 },
         })
     })
 
     it('gets an integration by key', async () => {
-        jest.spyOn(mockAxios, 'get').mockResolvedValue({
+        jest.spyOn(mockHttp, 'get').mockResolvedValue({
             data: { stat: 'OK', response: integration },
         })
 
         await expect(integrations.getById(integration.integration_key)).resolves.toEqual(
             integration,
         )
-        expect(mockAxios.get).toHaveBeenCalledWith(
+        expect(mockHttp.get).toHaveBeenCalledWith(
             `/admin/v3/integrations/${integration.integration_key}`,
         )
     })
 
     it('creates an integration', async () => {
-        jest.spyOn(mockAxios, 'post').mockResolvedValue({
+        jest.spyOn(mockHttp, 'post').mockResolvedValue({
             data: { stat: 'OK', response: integration },
         })
 
         await expect(integrations.create(createPayload)).resolves.toEqual(integration)
-        expect(mockAxios.post).toHaveBeenCalledWith('/admin/v3/integrations', createPayload)
+        expect(mockHttp.post).toHaveBeenCalledWith('/admin/v3/integrations', createPayload)
     })
 
     it('updates an integration', async () => {
-        jest.spyOn(mockAxios, 'post').mockResolvedValue({
+        jest.spyOn(mockHttp, 'post').mockResolvedValue({
             data: { stat: 'OK', response: integration },
         })
 
         await expect(
             integrations.update(integration.integration_key, updatePayload),
         ).resolves.toEqual(integration)
-        expect(mockAxios.post).toHaveBeenCalledWith(
+        expect(mockHttp.post).toHaveBeenCalledWith(
             `/admin/v3/integrations/${integration.integration_key}`,
             updatePayload,
         )
     })
 
     it('deletes an integration', async () => {
-        jest.spyOn(mockAxios, 'delete').mockResolvedValue({
+        jest.spyOn(mockHttp, 'delete').mockResolvedValue({
             data: { stat: 'OK', response: {} },
         })
 
         await expect(integrations.delete(integration.integration_key)).resolves.toEqual({})
-        expect(mockAxios.delete).toHaveBeenCalledWith(
+        expect(mockHttp.delete).toHaveBeenCalledWith(
             `/admin/v3/integrations/${integration.integration_key}`,
         )
     })
 
     it('retrieves an OAuth client secret', async () => {
-        jest.spyOn(mockAxios, 'get').mockResolvedValue({
+        jest.spyOn(mockHttp, 'get').mockResolvedValue({
             data: { stat: 'OK', response: clientSecret },
         })
 
         await expect(integrations.getOAuthClientSecret('DI123', 'client-123')).resolves.toEqual(
             clientSecret,
         )
-        expect(mockAxios.get).toHaveBeenCalledWith(
+        expect(mockHttp.get).toHaveBeenCalledWith(
             '/admin/v3/integrations/oauth_cc/DI123/client_secret/client-123',
         )
     })
 
     it('retrieves an OIDC client secret', async () => {
-        jest.spyOn(mockAxios, 'get').mockResolvedValue({
+        jest.spyOn(mockHttp, 'get').mockResolvedValue({
             data: { stat: 'OK', response: clientSecret },
         })
 
         await expect(integrations.getOidcClientSecret('DI123')).resolves.toEqual(clientSecret)
-        expect(mockAxios.get).toHaveBeenCalledWith(
+        expect(mockHttp.get).toHaveBeenCalledWith(
             '/admin/v3/integrations/oidc/DI123/client_secret',
         )
     })
 
     it('throws when Duo returns a failure response', async () => {
-        jest.spyOn(mockAxios, 'get').mockResolvedValue({
+        jest.spyOn(mockHttp, 'get').mockResolvedValue({
             data: { stat: 'FAIL', message: 'fail', message_detail: 'it failed' },
         })
 

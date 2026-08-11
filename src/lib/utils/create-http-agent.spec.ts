@@ -1,11 +1,16 @@
-import mockAxios from 'jest-mock-axios'
-import { AxiosInstance } from 'axios'
+jest.mock('axios')
+
+import axios, { AxiosInstance } from 'axios'
 import * as hmac from './hmac'
 import { createHttpAgent } from './create-http-agent'
 
 describe('HttpAgent', () => {
     let instance: AxiosInstance
     let signV5Spy: jest.SpyInstance
+    let mockInstance: {
+        interceptors: { request: { use: jest.Mock; clear: jest.Mock } }
+        defaults: Record<string, unknown>
+    }
 
     const conf = { apiHost: 'foo.bar', integrationKey: 'integrationKey', secretKey: 'secretKey' }
     type MockRequest = {
@@ -17,21 +22,29 @@ describe('HttpAgent', () => {
     }
 
     const getRequestInterceptor = () => {
-        const interceptor = mockAxios.interceptors.request.use.mock.calls[0]?.[0]
+        const interceptor = mockInstance.interceptors.request.use.mock.calls[0]?.[0]
         expect(interceptor).toBeDefined()
         return interceptor as (request: MockRequest) => MockRequest
     }
 
     beforeEach(() => {
-        mockAxios.reset()
-        mockAxios.interceptors.request.clear()
-        jest.spyOn(mockAxios, 'create')
+        jest.clearAllMocks()
+        mockInstance = {
+            interceptors: {
+                request: {
+                    use: jest.fn(),
+                    clear: jest.fn(),
+                },
+            },
+            defaults: {},
+        }
+        jest.mocked(axios.create).mockReturnValue(mockInstance as unknown as AxiosInstance)
         signV5Spy = jest.spyOn(hmac, 'signV5').mockReturnValue('Basic v5-signature')
         instance = createHttpAgent(conf)
     })
 
     afterEach(() => {
-        expect(mockAxios.create).toHaveBeenCalledWith({
+        expect(jest.mocked(axios.create)).toHaveBeenCalledWith({
             baseURL: `https://${conf.apiHost}`,
         })
         jest.restoreAllMocks()

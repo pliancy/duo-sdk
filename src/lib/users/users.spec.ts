@@ -1,15 +1,21 @@
 import { Users } from './users'
-import mockAxios from 'jest-mock-axios'
 import { AxiosInstance } from 'axios'
 import { DuoUser } from './users.types'
+
+const mockHttp = {
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+}
 
 describe('Users', () => {
     let users: Users
     const duoUsers = [{ user_id: '1' }, { user_id: '2' }, { user_id: '3' }] as never as DuoUser[]
 
     beforeEach(() => {
-        mockAxios.reset()
-        users = new Users(mockAxios as never as AxiosInstance)
+        jest.clearAllMocks()
+        users = new Users(mockHttp as unknown as AxiosInstance)
     })
 
     it('creates the instance', () => expect(users).toBeTruthy())
@@ -18,7 +24,7 @@ describe('Users', () => {
         assertFailure('getAll', 'get')
 
         it('gets all users', async () => {
-            jest.spyOn(mockAxios, 'get').mockResolvedValue({
+            jest.spyOn(mockHttp, 'get').mockResolvedValue({
                 data: { response: duoUsers },
             })
             await expect(users.getAll()).resolves.toEqual(duoUsers)
@@ -29,7 +35,7 @@ describe('Users', () => {
         assertFailure('getByUsername', 'get', 'user')
 
         it('gets a user by username', async () => {
-            jest.spyOn(mockAxios, 'get').mockResolvedValue({
+            jest.spyOn(mockHttp, 'get').mockResolvedValue({
                 data: { response: [duoUsers[0]] },
             })
             await expect(users.getByUsername('user')).resolves.toEqual(duoUsers[0])
@@ -40,7 +46,7 @@ describe('Users', () => {
         assertFailure('updateByUsername', 'post', 'user')
 
         it('updates a user by username', async () => {
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data: { response: duoUsers[0] },
             })
             await expect(users.updateByUsername('user', {} as never)).resolves.toEqual(duoUsers[0])
@@ -51,7 +57,7 @@ describe('Users', () => {
         assertFailure('create', 'post', 'user')
 
         it('creates a user', async () => {
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data: { response: duoUsers[0] },
             })
             await expect(users.create({} as never)).resolves.toEqual(duoUsers[0])
@@ -62,14 +68,14 @@ describe('Users', () => {
         assertFailure('removeByUsername', 'delete', 'user')
 
         it('deletes a user', async () => {
-            jest.spyOn(mockAxios, 'get').mockResolvedValue({
+            jest.spyOn(mockHttp, 'get').mockResolvedValue({
                 data: { stat: 'OK', response: [duoUsers[0]] },
             })
-            jest.spyOn(mockAxios, 'delete').mockResolvedValue({
+            jest.spyOn(mockHttp, 'delete').mockResolvedValue({
                 data: { response: '' },
             })
             await expect(users.removeByUsername('user')).resolves.toEqual('')
-            expect(mockAxios.get).toHaveBeenCalledWith('/admin/v1/users', {
+            expect(mockHttp.get).toHaveBeenCalledWith('/admin/v1/users', {
                 params: { username: 'user' },
             })
         })
@@ -79,7 +85,7 @@ describe('Users', () => {
         assertFailure('associateDevice', 'post', '1', '2')
 
         it('associates the user with the device', async () => {
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data: { stat: 'OK' },
             })
             await expect(users.associateDevice('1', '1')).resolves.toEqual('OK')
@@ -96,10 +102,10 @@ describe('Users', () => {
             const reuse_count = 1
             const username = 'user'
 
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data: { response },
             })
-            jest.spyOn(mockAxios, 'get').mockResolvedValue({
+            jest.spyOn(mockHttp, 'get').mockResolvedValue({
                 data: { stat: 'OK', response: [duoUsers[0]] },
             })
 
@@ -107,8 +113,8 @@ describe('Users', () => {
                 users.createBypassCodes(username, count, valid_secs, reuse_count),
             ).resolves.toEqual(response)
 
-            expect(mockAxios.get).toHaveBeenCalledWith('/admin/v1/users', { params: { username } })
-            expect(mockAxios.post).toHaveBeenCalledWith(
+            expect(mockHttp.get).toHaveBeenCalledWith('/admin/v1/users', { params: { username } })
+            expect(mockHttp.post).toHaveBeenCalledWith(
                 '/admin/v1/users/1/bypass_codes',
                 {},
                 { params: { count, reuse_count, valid_secs, preserve_existing: false } },
@@ -120,7 +126,7 @@ describe('Users', () => {
         assertFailure('sync', 'post', 'user', 'key')
 
         it('syncs the user', async () => {
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data: { stat: 'OK', response: { user: duoUsers[0] } },
             })
             await expect(users.sync('user', 'key')).resolves.toEqual(duoUsers[0])
@@ -131,7 +137,7 @@ describe('Users', () => {
         assertFailure('sendVerificationPush', 'post', 'user', 'key')
 
         it('sends a verification push', async () => {
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data: { stat: 'OK', response: { push_id: '1' } },
             })
             await expect(users.sendVerificationPush('user', 'key')).resolves.toEqual({
@@ -144,7 +150,7 @@ describe('Users', () => {
         assertFailure('getPushResponse', 'post', 'user', 'key')
 
         it('retrieves a push response by id', async () => {
-            jest.spyOn(mockAxios, 'get').mockResolvedValue({
+            jest.spyOn(mockHttp, 'get').mockResolvedValue({
                 data: { stat: 'OK', response: { result: 'approve' } },
             })
             await expect(users.getPushResponse('user', '1')).resolves.toEqual({
@@ -157,26 +163,24 @@ describe('Users', () => {
         assertFailure('addUserToGroup', 'get', 'user', 'Engineering')
 
         it('adds the user to the specified group by name', async () => {
-            // getByUsername -> GET /admin/v1/users
-            jest.spyOn(mockAxios, 'get').mockResolvedValueOnce({
-                data: { stat: 'OK', response: [{ user_id: '1' }] },
-            })
-            // Groups.getByName -> GET /admin/v1/groups
-            ;(mockAxios.get as any).mockResolvedValueOnce({
-                data: { stat: 'OK', response: [{ group_id: '2', name: 'Engineering' }] },
-            })
-            // POST /admin/v1/users/1/groups with group_id param
-            jest.spyOn(mockAxios, 'post').mockResolvedValue({
+            mockHttp.get
+                .mockResolvedValueOnce({
+                    data: { stat: 'OK', response: [{ user_id: '1' }] },
+                })
+                .mockResolvedValueOnce({
+                    data: { stat: 'OK', response: [{ group_id: '2', name: 'Engineering' }] },
+                })
+            jest.spyOn(mockHttp, 'post').mockResolvedValue({
                 data: { stat: 'OK' },
             })
 
             await expect(users.addUserToGroup('user', 'Engineering')).resolves.toEqual('OK')
 
-            expect(mockAxios.get).toHaveBeenNthCalledWith(1, '/admin/v1/users', {
+            expect(mockHttp.get).toHaveBeenNthCalledWith(1, '/admin/v1/users', {
                 params: { username: 'user' },
             })
-            expect(mockAxios.get).toHaveBeenNthCalledWith(2, '/admin/v1/groups')
-            expect(mockAxios.post).toHaveBeenCalledWith(
+            expect(mockHttp.get).toHaveBeenNthCalledWith(2, '/admin/v1/groups')
+            expect(mockHttp.post).toHaveBeenCalledWith(
                 '/admin/v1/users/1/groups',
                 {},
                 { params: { group_id: '2' } },
@@ -188,26 +192,24 @@ describe('Users', () => {
         assertFailure('removeUserFromGroup', 'get', 'user', 'Engineering')
 
         it('removes the user from the specified group by name', async () => {
-            // getByUsername -> GET /admin/v1/users
-            jest.spyOn(mockAxios, 'get').mockResolvedValueOnce({
-                data: { stat: 'OK', response: [{ user_id: '1' }] },
-            })
-            // Groups.getByName -> GET /admin/v1/groups
-            ;(mockAxios.get as any).mockResolvedValueOnce({
-                data: { stat: 'OK', response: [{ group_id: '2', name: 'Engineering' }] },
-            })
-            // DELETE /admin/v1/users/1/groups/2
-            jest.spyOn(mockAxios, 'delete').mockResolvedValue({
+            mockHttp.get
+                .mockResolvedValueOnce({
+                    data: { stat: 'OK', response: [{ user_id: '1' }] },
+                })
+                .mockResolvedValueOnce({
+                    data: { stat: 'OK', response: [{ group_id: '2', name: 'Engineering' }] },
+                })
+            jest.spyOn(mockHttp, 'delete').mockResolvedValue({
                 data: { stat: 'OK' },
             })
 
             await expect(users.removeUserFromGroup('user', 'Engineering')).resolves.toEqual('OK')
 
-            expect(mockAxios.get).toHaveBeenNthCalledWith(1, '/admin/v1/users', {
+            expect(mockHttp.get).toHaveBeenNthCalledWith(1, '/admin/v1/users', {
                 params: { username: 'user' },
             })
-            expect(mockAxios.get).toHaveBeenNthCalledWith(2, '/admin/v1/groups')
-            expect(mockAxios.delete).toHaveBeenCalledWith('/admin/v1/users/1/groups/2')
+            expect(mockHttp.get).toHaveBeenNthCalledWith(2, '/admin/v1/groups')
+            expect(mockHttp.delete).toHaveBeenCalledWith('/admin/v1/users/1/groups/2')
         })
     })
 
@@ -215,7 +217,7 @@ describe('Users', () => {
         it('fails given stat === "FAIL"', async () => {
             const errorResponse = { stat: 'FAIL', message: 'fail', message_detail: 'it failed' }
 
-            jest.spyOn(mockAxios, requestMethod).mockRejectedValue({
+            jest.spyOn(mockHttp, requestMethod).mockRejectedValue({
                 data: errorResponse,
             } as never)
             jest.spyOn(users, classMethod)
