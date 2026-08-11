@@ -141,9 +141,7 @@ describe('Integrations', () => {
         })
 
         await expect(integrations.getOidcClientSecret('DI123')).resolves.toEqual(clientSecret)
-        expect(mockHttp.get).toHaveBeenCalledWith(
-            '/admin/v3/integrations/oidc/DI123/client_secret',
-        )
+        expect(mockHttp.get).toHaveBeenCalledWith('/admin/v3/integrations/oidc/DI123/client_secret')
     })
 
     it('throws when Duo returns a failure response', async () => {
