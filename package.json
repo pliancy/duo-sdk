@@ -37,7 +37,7 @@
     "build:check": "tsc --noEmit",
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "postinstall": "husky",
+    "prepare": "husky",
     "qa": "run-s -l lint test clean build:check",
     "semantic-release": "semantic-release",
     "test": "jest",
