@@ -23,5 +23,12 @@ Each resource lives in `src/lib/<resource>/` with three files:
 Always check `data.stat === 'FAIL'` after every Axios call and throw with `data.message` + `data.message_detail`.
 
 ## Testing
-- Use `jest-mock-axios` to mock HTTP; never make real Duo API calls in tests.
+- **Do not use `jest-mock-axios`** — it is incompatible with Jest 30.3+ and has been removed.
+- Mock HTTP with a local `mockHttp` stub object using `jest.fn()`. Declare it at the top of the spec file and reset with `jest.clearAllMocks()` in `beforeEach`:
+  ```typescript
+  const mockHttp = { get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn() }
+  beforeEach(() => { jest.clearAllMocks(); resource = new Resource(mockHttp as unknown as AxiosInstance) })
+  ```
+- For `create-http-agent.spec.ts`, mock the axios module with `jest.mock('axios')` and configure `jest.mocked(axios.create).mockReturnValue(mockInstance)` in `beforeEach`.
 - Assert both the happy path and the `stat === 'FAIL'` error path for every method.
+- Never make real Duo API calls in tests.
