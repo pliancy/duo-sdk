@@ -1,0 +1,27 @@
+---
+description: Core project conventions for duo-sdk
+alwaysApply: true
+---
+
+# duo-sdk Project Conventions
+
+## Package Manager
+Use **yarn**, not npm. Run scripts with `yarn <script>` (e.g. `yarn test`, `yarn build`).
+
+## Duo Request Signing
+All requests use **v5 signing** (`signV5`) unconditionally — no per-path switching.
+Duo recommends v5 for all endpoints; an increasing set of endpoints reject v2 entirely.
+Do not reintroduce `sign()` (v2) or a `V5_SIGNATURE_PATHS` allowlist.
+
+## Module Structure
+Each resource lives in `src/lib/<resource>/` with three files:
+- `<resource>.ts` — class extending the Axios instance
+- `<resource>.types.ts` — TypeScript interfaces
+- `<resource>.spec.ts` — Jest unit tests (mock Axios, not real HTTP)
+
+## Duo API Response Handling
+Always check `data.stat === 'FAIL'` after every Axios call and throw with `data.message` + `data.message_detail`.
+
+## Testing
+- Use `jest-mock-axios` to mock HTTP; never make real Duo API calls in tests.
+- Assert both the happy path and the `stat === 'FAIL'` error path for every method.

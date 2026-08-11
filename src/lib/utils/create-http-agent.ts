@@ -1,17 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import { DuoConfig } from '../duo.types'
-import { sign, signV5 } from './hmac'
-
-const V5_SIGNATURE_PATHS = [
-    '/admin/v3/integrations',
-    '/admin/v2/integrations',
-    '/admin/v1/integrations',
-    '/admin/v2/policies',
-]
-
-function isV5SignaturePath(path: string) {
-    return V5_SIGNATURE_PATHS.some((prefix) => path.startsWith(prefix))
-}
+import { signV5 } from './hmac'
 
 function stripUndefinedValues(value: Record<string, unknown>) {
     return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined))
@@ -37,26 +26,16 @@ export function createHttpAgent(config: DuoConfig): AxiosInstance {
                   ? JSON.stringify(req.data)
                   : ''
 
-        req.headers['Authorization'] = isV5SignaturePath(path)
-            ? signV5(
-                  config.integrationKey,
-                  config.secretKey,
-                  method,
-                  config.apiHost,
-                  path,
-                  params,
-                  date,
-                  body,
-              )
-            : sign(
-                  config.integrationKey,
-                  config.secretKey,
-                  method,
-                  config.apiHost,
-                  path,
-                  params,
-                  date,
-              )
+        req.headers['Authorization'] = signV5(
+            config.integrationKey,
+            config.secretKey,
+            method,
+            config.apiHost,
+            path,
+            params,
+            date,
+            body,
+        )
         req.headers['Date'] = date
         return req
     })
