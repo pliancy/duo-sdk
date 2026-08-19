@@ -16,7 +16,7 @@ export class Groups {
     }
 
     async create(group: Partial<DuoGroup>): Promise<DuoGroup> {
-        const { data } = await this.http.post(this.baseUrl, {}, { params: group })
+        const { data } = await this.http.post(this.baseUrl, group)
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
         return data.response
     }
@@ -25,11 +25,7 @@ export class Groups {
         const group = await this.getByName(groupName)
         if (!group) throw new Error(`No group with name "${groupName}" found`)
 
-        const { data } = await this.http.post(
-            `${this.baseUrl}/${group.group_id}`,
-            {},
-            { params: update },
-        )
+        const { data } = await this.http.post(`${this.baseUrl}/${group.group_id}`, update)
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
         return data.response
     }

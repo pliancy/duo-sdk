@@ -1,0 +1,42 @@
+---
+description: Before finishing work on a branch, format, run full QA, and self-review the diff against main to catch issues before Bugbot does
+alwaysApply: true
+---
+
+# Pre-Push Self-Review
+
+Before considering work complete on any non-trivial change, run all of the following steps in order.
+
+## 1. Diff self-review
+
+Run both commands — together they cover the full diff regardless of whether changes are committed:
+
+```bash
+git diff main HEAD   # committed changes on the branch vs main
+git diff HEAD        # uncommitted changes (staged + working tree) vs HEAD
+```
+
+Review the diff as a code reviewer would. Flag anything in these categories:
+
+- **Logic errors** — off-by-one, wrong operator, inverted condition, missing guard
+- **Untested paths** — new branches or conditions with no corresponding test case
+- **Stale assumptions** — code that assumes a prior invariant the current change invalidated
+- **Missing null/undefined guards** — optional chaining or fallbacks omitted where data may be absent
+- **Signing correctness** — any new or modified API call must use `signV5` unconditionally; verify parameters are in the JSON body for POST/PUT/PATCH, not in the URL query string
+- **Type unsafety** — `as X` casts that bypass real type errors rather than fixing them
+- **Leftover debug artifacts** — `console.log`, hardcoded test values, disabled test cases
+- **Incomplete cross-resource changes** — if a behavioral fix (e.g. parameter placement, error handling) is applied to one resource module, verify the same pattern is applied consistently across all other resource modules (`accounts`, `devices`, `groups`, `integrations`, `policies`, `users`)
+
+## 2. QA
+
+```bash
+yarn qa
+```
+
+This runs lint, all tests, and a type check. All must pass before the branch is ready.
+
+## When to do it
+
+After all todos are complete — as the last step before declaring the session done. If issues are found, fix them and re-run `yarn qa` before finishing.
+
+This check exists because Bugbot consistently finds issues on the first push. Running this review in-session is cheaper than a fix/push/review cycle.

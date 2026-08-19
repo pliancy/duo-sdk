@@ -114,11 +114,12 @@ describe('Users', () => {
             ).resolves.toEqual(response)
 
             expect(mockHttp.get).toHaveBeenCalledWith('/admin/v1/users', { params: { username } })
-            expect(mockHttp.post).toHaveBeenCalledWith(
-                '/admin/v1/users/1/bypass_codes',
-                {},
-                { params: { count, reuse_count, valid_secs, preserve_existing: false } },
-            )
+            expect(mockHttp.post).toHaveBeenCalledWith('/admin/v1/users/1/bypass_codes', {
+                count,
+                reuse_count,
+                valid_secs,
+                preserve_existing: false,
+            })
         })
     })
 
@@ -180,11 +181,9 @@ describe('Users', () => {
                 params: { username: 'user' },
             })
             expect(mockHttp.get).toHaveBeenNthCalledWith(2, '/admin/v1/groups')
-            expect(mockHttp.post).toHaveBeenCalledWith(
-                '/admin/v1/users/1/groups',
-                {},
-                { params: { group_id: '2' } },
-            )
+            expect(mockHttp.post).toHaveBeenCalledWith('/admin/v1/users/1/groups', {
+                group_id: '2',
+            })
         })
     })
 

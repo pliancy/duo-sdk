@@ -15,7 +15,7 @@ export class Devices {
     }
 
     async create(phone: Partial<DuoPhone>): Promise<DuoPhone> {
-        const { data } = await this.http.post(this.baseUrl, {}, { params: phone })
+        const { data } = await this.http.post(this.baseUrl, phone)
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
         return data.response
     }
@@ -39,16 +39,15 @@ export class Devices {
         installation_msg?: string,
         activation_msg?: string,
     ): Promise<{ installation_msg: string }> {
-        const params: any = {}
-        const args: any = { phoneId, valid_secs, install, installation_msg, activation_msg }
+        const body: any = {}
+        const args: any = { valid_secs, install, installation_msg, activation_msg }
         for (const key in args) {
             // install param is a falsy value, so check for null or undefined values
-            if (args[key] !== undefined && args[key] !== null) params[key] = args[key]
+            if (args[key] !== undefined && args[key] !== null) body[key] = args[key]
         }
         const { data } = await this.http.post(
             `${this.baseUrl}/${phoneId}/send_sms_activation`,
-            {},
-            { params },
+            body,
         )
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
         return data.response
@@ -57,8 +56,7 @@ export class Devices {
     async activate(phoneId: string): Promise<DeviceActivationResponse> {
         const { data } = await this.http.post<BaseResponse<DuoActivation>>(
             `${this.baseUrl}/${phoneId}/activation_url`,
-            {},
-            { params: { install: '1' } },
+            { install: '1' },
         )
 
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)

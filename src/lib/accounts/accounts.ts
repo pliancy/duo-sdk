@@ -30,46 +30,26 @@ export class Accounts {
         accountId: string,
         edition: AccountEdition,
     ): Promise<AccountEditionResponse> {
-        const { data: res } = await this.httpAgent.post(
-            '/admin/v1/billing/edition',
-            {},
-            {
-                params: {
-                    account_id: accountId,
-                    edition,
-                },
-            },
-        )
+        const { data: res } = await this.httpAgent.post('/admin/v1/billing/edition', {
+            account_id: accountId,
+            edition,
+        })
         return res.response
     }
 
     async create(account: CreateAccount): Promise<Account> {
-        const { data: res } = await this.httpAgent.post(
-            '/accounts/v1/account/create',
-            {},
-            {
-                params: {
-                    ...account,
-                },
-            },
-        )
+        const { data: res } = await this.httpAgent.post('/accounts/v1/account/create', {
+            ...account,
+        })
         return res.response
     }
 
     async updateName(name: string): Promise<Account> {
-        const { data: res } = await this.httpAgent.post(
-            `/admin/v1/settings`,
-            {},
-            { params: { name } },
-        )
+        const { data: res } = await this.httpAgent.post(`/admin/v1/settings`, { name })
         return res.response
     }
 
     async delete(accountId: string): Promise<void> {
-        await this.httpAgent.post(
-            '/accounts/v1/account/delete',
-            {},
-            { params: { account_id: accountId } },
-        )
+        await this.httpAgent.post('/accounts/v1/account/delete', { account_id: accountId })
     }
 }

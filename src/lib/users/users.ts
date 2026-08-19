@@ -20,7 +20,7 @@ export class Users {
     }
 
     async create(user: Partial<DuoUser>): Promise<DuoUser> {
-        const { data } = await this.httpAgent.post(this.baseUrl, {}, { params: user })
+        const { data } = await this.httpAgent.post(this.baseUrl, user)
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
         return data.response
     }
@@ -28,11 +28,7 @@ export class Users {
     async updateByUsername(username: string, params: Partial<DuoUser>): Promise<DuoUser> {
         const user = (await this.getByUsername(username)) as any
         if (!user) throw new Error(`No user with username ${username} found`)
-        const { data } = await this.httpAgent.post(
-            `${this.baseUrl}/${user.user_id}`,
-            {},
-            { params },
-        )
+        const { data } = await this.httpAgent.post(`${this.baseUrl}/${user.user_id}`, params)
 
         if (data.stat === 'FAIL')
             throw new Error(
@@ -56,10 +52,7 @@ export class Users {
         try {
             const { data } = await this.httpAgent.post(
                 `${this.baseUrl}/${userId}/send_verification_push`,
-                null,
-                {
-                    params: { phone_id: phoneId },
-                },
+                { phone_id: phoneId },
             )
             return { pushId: data.response.push_id }
         } catch (e: any) {
@@ -93,11 +86,9 @@ export class Users {
     }
 
     async associateDevice(user_id: string, phone_id: string): Promise<'OK'> {
-        const { data } = await this.httpAgent.post(
-            `${this.baseUrl}/${user_id}/phones`,
-            {},
-            { params: { phone_id } },
-        )
+        const { data } = await this.httpAgent.post(`${this.baseUrl}/${user_id}/phones`, {
+            phone_id,
+        })
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
         return data.stat
     }
@@ -110,11 +101,12 @@ export class Users {
         preserve_existing = false,
     ): Promise<string[]> {
         const user = await this.getByUsername(username)
-        const { data } = await this.httpAgent.post(
-            `${this.baseUrl}/${user.user_id}/bypass_codes`,
-            {},
-            { params: { count, valid_secs, reuse_count, preserve_existing } },
-        )
+        const { data } = await this.httpAgent.post(`${this.baseUrl}/${user.user_id}/bypass_codes`, {
+            count,
+            valid_secs,
+            reuse_count,
+            preserve_existing,
+        })
 
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
 
@@ -124,8 +116,7 @@ export class Users {
     async sync(username: string, directory_key: string): Promise<DuoUser> {
         const { data } = await this.httpAgent.post(
             `${this.baseUrl}/directorysync/${directory_key}/syncuser`,
-            {},
-            { params: { username } },
+            { username },
         )
 
         if (data.stat === 'FAIL') throw new Error(`${data.message}: ${data.message_detail}`)
@@ -140,11 +131,9 @@ export class Users {
         const group = await groups.getByName(group_name)
         if (!group) throw new Error(`No group with name ${group_name} found`)
         try {
-            const { data } = await this.httpAgent.post(
-                `${this.baseUrl}/${user.user_id}/groups`,
-                {},
-                { params: { group_id: group.group_id } },
-            )
+            const { data } = await this.httpAgent.post(`${this.baseUrl}/${user.user_id}/groups`, {
+                group_id: group.group_id,
+            })
 
             return data.stat
         } catch (e: any) {

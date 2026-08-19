@@ -61,11 +61,9 @@ describe('Accounts', () => {
         jest.spyOn(mockHttp, 'post').mockResolvedValue({ data })
         const res = await accounts.create({ name: 'Account' })
         expect(res).toEqual(account)
-        expect(mockHttp.post).toHaveBeenCalledWith(
-            '/accounts/v1/account/create',
-            {},
-            { params: { name: 'Account' } },
-        )
+        expect(mockHttp.post).toHaveBeenCalledWith('/accounts/v1/account/create', {
+            name: 'Account',
+        })
     })
 
     it('updates an account name', async () => {
@@ -75,23 +73,15 @@ describe('Accounts', () => {
         jest.spyOn(mockHttp, 'post').mockResolvedValue({ data })
         const res = await accounts.updateName('New Account')
         expect(res).toEqual(account)
-        expect(mockHttp.post).toHaveBeenCalledWith(
-            `/admin/v1/settings`,
-            {},
-            { params: { name: 'New Account' } },
-        )
+        expect(mockHttp.post).toHaveBeenCalledWith(`/admin/v1/settings`, { name: 'New Account' })
     })
 
     it('deletes an account', async () => {
         jest.spyOn(mockHttp, 'post').mockResolvedValue({ data: {} })
         await accounts.delete('1')
-        expect(mockHttp.post).toHaveBeenCalledWith(
-            '/accounts/v1/account/delete',
-            {},
-            {
-                params: { account_id: '1' },
-            },
-        )
+        expect(mockHttp.post).toHaveBeenCalledWith('/accounts/v1/account/delete', {
+            account_id: '1',
+        })
     })
 
     it('gets an account edition', async () => {
@@ -109,15 +99,9 @@ describe('Accounts', () => {
     it('sets an account edition', async () => {
         jest.spyOn(mockHttp, 'post').mockResolvedValue({ data: {} })
         await accounts.setAccountEdition('1', 'ENTERPRISE')
-        expect(mockHttp.post).toHaveBeenCalledWith(
-            '/admin/v1/billing/edition',
-            {},
-            {
-                params: {
-                    account_id: '1',
-                    edition: 'ENTERPRISE',
-                },
-            },
-        )
+        expect(mockHttp.post).toHaveBeenCalledWith('/admin/v1/billing/edition', {
+            account_id: '1',
+            edition: 'ENTERPRISE',
+        })
     })
 })
