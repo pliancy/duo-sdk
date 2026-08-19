@@ -62,11 +62,7 @@ describe('Groups', () => {
                 data: { stat: 'OK', response: created },
             })
             await expect(groups.create({ name: 'New Group' })).resolves.toEqual(created)
-            expect(mockHttp.post).toHaveBeenCalledWith(
-                '/admin/v1/groups',
-                {},
-                { params: { name: 'New Group' } },
-            )
+            expect(mockHttp.post).toHaveBeenCalledWith('/admin/v1/groups', { name: 'New Group' })
         })
     })
 
@@ -88,11 +84,7 @@ describe('Groups', () => {
             await expect(groups.updateByName('Old Name', { name: 'New Group' })).resolves.toEqual(
                 updated,
             )
-            expect(mockHttp.post).toHaveBeenCalledWith(
-                '/admin/v1/groups/10',
-                {},
-                { params: { name: 'New Group' } },
-            )
+            expect(mockHttp.post).toHaveBeenCalledWith('/admin/v1/groups/10', { name: 'New Group' })
         })
     })
 

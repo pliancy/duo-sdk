@@ -80,19 +80,12 @@ describe('Devices', () => {
                 ),
             ).resolves.toEqual(data.response)
 
-            expect(mockHttp.post).toHaveBeenCalledWith(
-                '/admin/v1/phones/1/send_sms_activation',
-                {},
-                {
-                    params: {
-                        activation_msg,
-                        install,
-                        installation_msg,
-                        phoneId,
-                        valid_secs,
-                    },
-                },
-            )
+            expect(mockHttp.post).toHaveBeenCalledWith('/admin/v1/phones/1/send_sms_activation', {
+                activation_msg,
+                install,
+                installation_msg,
+                valid_secs,
+            })
         })
     })
 

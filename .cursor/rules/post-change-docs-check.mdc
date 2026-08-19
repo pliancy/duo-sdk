@@ -1,0 +1,14 @@
+---
+description: After code changes, check whether any rules or docs need updating
+alwaysApply: true
+---
+
+# Post-Change Rules & Docs Check
+
+After completing any non-trivial code change, review whether the change affects the accuracy of existing project documentation or cursor rules.
+
+Check:
+- `.cursor/rules/` — do any rules describe behavior that has changed or constraints that no longer hold?
+- `docs/` — docs covering architecture, API conventions, or module structure
+
+If stale content exists, update it in the same session as the code change. If no updates are needed, no action is required — the check is a prompt to look, not a requirement to write.
