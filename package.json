@@ -21,7 +21,7 @@
     "@pliancy/eslint-config-ts": "1.1.1",
     "@pliancy/semantic-release-config-npm": "2.5.0",
     "@types/jest": "30.0.0",
-    "@types/node": "24.13.3",
+    "@types/node": "26.6.6",
     "commitizen": "4.3.2",
     "cz-conventional-changelog": "^3.3.0",
     "husky": "9.1.7",
@@ -51,7 +51,7 @@
     "email": "santese@pliancy.com"
   },
   "volta": {
-    "node": "24.19.0",
+    "node": "26.13.1",
     "yarn": "1.22.22"
   },
   "config": {
